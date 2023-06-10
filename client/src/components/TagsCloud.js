@@ -56,7 +56,7 @@ function TagsCloud({
           />
         ))}
         <AddTagButton
-          dataTestId={`tagList-AddTagBtn`}
+          postId={`tagList-AddTagBtn`}
           onClick={handleNewTagClick}
         />
         {isNewTag && (

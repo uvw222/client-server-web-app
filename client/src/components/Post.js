@@ -36,6 +36,9 @@ function Post({
   const isTag = tagsNameArr.length > 0 ? true : false;
   const didUserClappedOnPost = false;
 
+
+
+  
   return (
     <ListItem
       alignItems='flex-start'
@@ -63,12 +66,8 @@ function Post({
           </CardContent>
         </ListItemButton>
         <CardActions>
-          <AddTagButton
-            dataTestId={`postAddTagBtn-${postId}`}
-            onClick={(e) => handleAddTagClick(e, postId)}
-          />
-          {isTag &&
-            tagsNameArr.map((tagName) => (
+          <AddTagButton postId={`postAddTagBtn-${postId}`}  onClick={(e) => handleAddTagClick(e, postId)} />
+          {isTag &&  tagsNameArr.map((tagName) => (
               <Tag
                 tagName={tagName}
                 postId={postId}

@@ -78,8 +78,28 @@ app.get('/tags', cors(corsOptions), (req, res) => {
 
 ////////////////// put a tag on a post ///////////////////
 app.put('/tags/post-tag', cors(corsOptions), (req, res) => {
-  res.send({ Tags });
+  const { postId, tagName } = req.body;
+  if (!postId || !tagName) {
+    res.status(400).json({ message: 'Bad request' }).end();
+    return;
+  }
+
+  const post = Posts.find((p) => p.id === postId);
+  if (!post) {
+    res.status(404).json({ message: 'Post not found' }).end();
+    return;
+  }
+
+  if (!Tags[tagName]) {
+    res.status(404).json({ message: 'Tag not found' }).end();
+    return;
+  }
+
+  Tags[tagName][postId] = true;
+  res.status(200).end();
 });
+////////////////// put a tag on a post ///////////////////
+
 
 app.post('/tags/tagName/:tagName', cors(corsOptions), (req, res) => {
   const userId = req.cookies?.userId;

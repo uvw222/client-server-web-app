@@ -1,7 +1,7 @@
 import { Fab, Tooltip } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 
-function AddTagButton({ dataTestId, onClick }) {
+function AddTagButton({ PostId, onClick }) {
   return (
     <Fab
       variant='extended'
@@ -9,7 +9,7 @@ function AddTagButton({ dataTestId, onClick }) {
       disableRipple
       className='Badge'
       onClick={onClick}//click that opens the add tag menu
-      data-testid={dataTestId}
+      postId={PostId}
     >
       <Tooltip title='add a tag' arrow placement='top'>
         <AddIcon color='action' />
