@@ -142,7 +142,7 @@ function AddNewPost({ handleAddPost,  TagsList}) {
             variant='contained'
             size='large'
             data-testid='addNewPost-submitBtn'
-            onClick={(e) => handleAddPost( title, content, selectedTag)}
+            onClick={(e) => handleAddPost(uuidv4(),title, content, selectedTag)}
           >
             submit
           </Button>

@@ -57,10 +57,18 @@ app.post('/posts', cors(corsOptions), (req, res) => {
       return;
   }
 
-  const {title, content} = post;
+  const {title, content, id} = post;
   if (!(title)) {
-      res.status(400).json({message: 'Bad request'}).end();
+      res.status(400).json({message: 'No title'}).end();
       return;
+  }
+  if (!(content)) {
+    res.status(400).json({message: 'No content'}).end();
+    return;
+  }
+  if (!(id)) {
+    res.status(400).json({message: 'Bad request'}).end();
+    return;
   }
   
 

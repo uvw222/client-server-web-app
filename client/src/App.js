@@ -121,7 +121,7 @@ function App() {
 
 
   ///////////////////// post request /////////////////////
-  const addPost = (id, title, content, claps) => {
+  const addPost = (id, title, content, selectedTag) => {
     axios
       .post(
         `${baseURL}/posts`,
@@ -131,7 +131,8 @@ function App() {
             id,
             title,
             content,
-            claps,
+            selectedTag,
+            userId,
             
           },
         },

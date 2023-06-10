@@ -72,9 +72,10 @@ function Post({
               <Tag
                 tagName={tagName}
                 postId={postId}
-                handleTagClick={()=>{
-                  setTags((prevItems) => [...prevItems, clickedObject]);}}
-                //selectedTagId={selectedTagId}
+                handleTagClick={selectedTagId={selectedTagId}
+                  // ()=>{setTags((prevItems) => [...prevItems, clickedObject]);}
+                }
+                //
               />
             ))}
           <IconButton
