@@ -13,6 +13,7 @@ function Home({
   selectedTagId,
   selectedPopularityQuery,
   userId,
+  // handleAddTagClick,
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
 

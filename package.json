@@ -19,12 +19,13 @@
   },
   "homepage": "https://github.com/wix-private/enter_2023_exam_blog#readme",
   "dependencies": {
+    "react-router-dom": "^6.12.1",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "playwright": "^1.32.3",
     "@playwright/test": "^1.32.3",
-    "lerna": "^6.6.2"
+    "lerna": "^6.6.2",
+    "playwright": "^1.32.3"
   },
   "workspaces": [
     "client/",

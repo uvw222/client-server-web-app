@@ -33,6 +33,7 @@ When you're ready to submit your exam:
 ### Claps - Part 1:
 1. Implement claps behavior - up to 5 claps per user are allowed
 > note that the `userId` of any api call is already available for you as a cookie on the **server** side.
+
 ### Filter:
 
 1. By popularity - clicking on popularity from the menu should change the url and show only posts with higher popularity (claps). Currently clicking on a dropdown item will redirect but no filtering will occur

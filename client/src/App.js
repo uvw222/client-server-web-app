@@ -17,7 +17,7 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import HomeIcon from '@mui/icons-material/Home';
 import FloatingMenu from './components/FloatingMenu';
-// import Post from './components/Post';
+import Post from './components/Post';
 
 function App() {
   const baseURL = 'http://localhost:3080';
@@ -144,9 +144,12 @@ function App() {
       )
       .then((response) => {
         setAllPosts([...allPosts, response.data.post]);
+        window.alert('Post added successfully!');
+        window.location.href = 'http://localhost:3000/';
       })
       .catch((error) => {
         console.log(error);
+        window.alert('Please fill all required fields');
       });
   };
 
@@ -169,25 +172,23 @@ function App() {
 //////////////// add a tag to a post ////////////////////
   const addPostTag = (postId, tagName) => {
     axios
-      .put(`${baseURL}/posts/${tagName}`)
-      .then((response) => {
-        setAllPosts((prevPosts) =>
-        prevPosts.map((post) =>
-        post.id === postId ? { ...post } : post
-        ));
-        
-        
-        
-        const tagsList = [];
-        for (const tagName in response.data['Tags']) {
-          tagsList.push(tagName);
+    .put(`${baseURL}/posts/${postId}/tags/${tagName}`)
+    .then((response) => {
+      const updatedPosts = allPosts.map((post) => {
+        if (post.id === postId) {
+          return {
+            ...post,
+            tags: [...post.tags, tagName],
+          };
         }
-        setTagsList(tagsList);
-        handleAlert('Tag was added successfully', true, 'success');
-      })
-      .catch((error) => {
-        handleAlert(error.message, true, 'error');
+        return post;
       });
+      setAllPosts(updatedPosts);
+      handleAlert('Tag was added successfully', true, 'success');
+    })
+    .catch((error) => {
+      handleAlert(error.message, true, 'error');
+    });
   };
 
 
@@ -301,29 +302,15 @@ function App() {
 
   return (
     <div className='App'>
-      {renderToolBar()}
-      {showAlert && (
-        <Snackbar open={true} data-testid='alert-snackbar'>
-          <Alert severity={alertType} data-testid='alert'>
-            {alertMsg}
-          </Alert>
+      {renderToolBar()} {showAlert && (<Snackbar open={true} data-testid='alert-snackbar'>
+          <Alert severity={alertType} data-testid='alert'> {alertMsg}  </Alert>
         </Snackbar>
       )}
       <Router>
         <Routes>
-          <Route
-            path='/add-new-post'
-            element={<AddNewPost handleAddPost={addPost} />}
-          />
-          <Route
-            path='/'
-            element={
-              <Home
-                Posts={filteredPosts}
-                Tags={tags}
-                tagsList={tagsList}
+          <Route path='/add-new-post'  element={<AddNewPost handleAddPost={addPost} TagsList={tagsList} />} />
+          <Route  path='/'  element={ <Home  Posts={filteredPosts} Tags={tags} tagsList={tagsList}
                 handleAddNewTag={addNewTag}
-                // handleAddPost={addPost}
                 selectedTagId={selectedTagId}
                 selectedPopularityQuery={selectedPopularityQuery}
                 userId={userId}
