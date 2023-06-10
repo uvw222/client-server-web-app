@@ -1,6 +1,6 @@
 import { Fab } from '@mui/material';
 
-function Tag({ tagName, postId, handleTagClick, selectedTagId }) {
+function Tag({ tagName, postId, handleTagClick }) {//, selectedTagId
   const dataTestId = postId ? `tag-${tagName}-${postId}` : `tag-${tagName}`;
   return (
     <Fab
@@ -9,7 +9,7 @@ function Tag({ tagName, postId, handleTagClick, selectedTagId }) {
       size='small'
       disableRipple
       className='Badge'
-      onClick={() => handleTagClick(tagName, dataTestId)}
+      onClick={handleTagClick}
       color='default'
       data-testid={dataTestId}
     >

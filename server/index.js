@@ -77,26 +77,18 @@ app.get('/tags', cors(corsOptions), (req, res) => {
 });
 
 ////////////////// put a tag on a post ///////////////////
-app.put('/tags/post-tag', cors(corsOptions), (req, res) => {
-  const { postId, tagName } = req.body;
-  if (!postId || !tagName) {
-    res.status(400).json({ message: 'Bad request' }).end();
-    return;
+app.put('/posts/:postId/tags/:tagName', (req, res) => {
+  const { postId, tagName } = req.params;
+  
+  // Here, you would typically update your data store (e.g., database) with the new tag
+  // For simplicity, let's assume you have a postsData array as an example data store
+  const post = postsData.find((post) => post.id === postId);
+  if (post) {
+    post.tags.push(tagName);
+    res.status(200).json({ message: 'Tag added successfully' });
+  } else {
+    res.status(404).json({ message: 'Post not found' });
   }
-
-  const post = Posts.find((p) => p.id === postId);
-  if (!post) {
-    res.status(404).json({ message: 'Post not found' }).end();
-    return;
-  }
-
-  if (!Tags[tagName]) {
-    res.status(404).json({ message: 'Tag not found' }).end();
-    return;
-  }
-
-  Tags[tagName][postId] = true;
-  res.status(200).end();
 });
 ////////////////// put a tag on a post ///////////////////
 

@@ -10,6 +10,7 @@ import {
   TextField,
   Button,
   Select,
+  FormHelperText,
 } from '@mui/material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -17,8 +18,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 
-function AddNewPost({ handleAddPost }) {
-  const tagsList = ['Server', 'Frontend', 'Security', 'Analytics', 'Mobile']; // mock tags data
+function AddNewPost({ handleAddPost,  TagsList}) {
+  const tagsList = TagsList;//changed from mock data to real-time tags list
 
   const navigate = useNavigate();
   // const routeChange = () =>{ 
@@ -27,7 +28,23 @@ function AddNewPost({ handleAddPost }) {
   // }
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [titleError, setTitleError] = useState(false);
+  const [contentError, setContentError] = useState(false);
+
   const [selectedTag, setSelectedTag] = useState('');
+
+
+  const handleTitleChange = (event) => {
+    const value = event.target.value;
+    setTitle(value);
+    setTitleError(value.length > 100 || value.length < 1);
+  };
+  
+  const handleContentChange = (event) => {
+    const contentValue = event.target.value;
+    setContent(contentValue);
+    setContentError(contentValue.length < 1);
+  };
 
   return (
     <div className='container'>
@@ -49,7 +66,7 @@ function AddNewPost({ handleAddPost }) {
           >
             *Required
           </Typography>
-          <FormControl sx={{ minWidth: '100%' }}>
+          <FormControl sx={{ minWidth: '100%' }} TitleError={titleError}>
             <InputLabel
               required
               htmlFor='title-field'
@@ -58,16 +75,22 @@ function AddNewPost({ handleAddPost }) {
               Title
             </InputLabel>
             <OutlinedInput
-              error={false}
+              error= {titleError===true}
               id='addNewPost-postTitleInput'
               label='Title'
               fullWidth
               value={title}
-              onChange={(event) => {
-                setTitle(event.target.value);
-              }}
+              onChange={
+                handleTitleChange
+              }
               data-testid='addNewPost-postTitle'
             />
+            {titleError &&
+            (
+              <FormHelperText>
+                {title.length < 1 ? 'Error: Title is required' : 'Error: Title must be 100 characters or less'}
+              </FormHelperText>
+            )}
           </FormControl>
           <TextField
             id='addNewPost-postContentInput'
@@ -76,12 +99,14 @@ function AddNewPost({ handleAddPost }) {
             rows={4}
             fullWidth
             required
-            error={false}
+            error={contentError}
             value={content}
-            onChange={(event) => {
-              setContent(event.target.value);
-            }}
+            onChange={
+              // (event) => {setContent(event.target.value);}
+              handleContentChange
+          }
             data-testid='addNewPost-postContent'
+            helperText={contentError && 'Error: Content is required'}
           />
           <FormControl sx={{ m: 1, minWidth: 'max-content', width: '200px' }}>
             <InputLabel
@@ -95,15 +120,15 @@ function AddNewPost({ handleAddPost }) {
               id='addNewPost-postTagSelect'
               value={selectedTag}
               label='Tag'
-              onChange={(event) => {
-                setSelectedTag(event.target.value);
+              onChange={
+                (event) => {setSelectedTag(event.target.value);
               }}
               data-testid='addNewPost-postTag'
             >
               {tagsList.map((option) => (
                 <MenuItem
                   key={option}
-                  value={option}
+                  value= {option}
                   data-testid={`addNewPost-postTagOption-${option}`}
                 >
                   {option}
@@ -117,8 +142,7 @@ function AddNewPost({ handleAddPost }) {
             variant='contained'
             size='large'
             data-testid='addNewPost-submitBtn'
-            onClick={(e) => handleAddPost( title, content)}
-            href="http://localhost:3000/"
+            onClick={(e) => handleAddPost( title, content, selectedTag)}
           >
             submit
           </Button>

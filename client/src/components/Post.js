@@ -17,15 +17,15 @@ function Post({
   postContent,
   Tags,
   handleAddTagClick,
+  userId,
   handleTagClick,
   selectedTagId,
-  userId,
-  gainClap,
+  //gainClap,
 }) {
-  const getTagsByPostId = (postID) => {
+  const getTagsByPostId = (postId) => {
     const tagsArr = [];
     for (const tagName in Tags) {
-      if (Tags[tagName][postID]) {
+      if (Tags[tagName][postId]) {
         tagsArr.push(tagName);
       }
     }
@@ -66,13 +66,15 @@ function Post({
           </CardContent>
         </ListItemButton>
         <CardActions>
-          <AddTagButton postId={`postAddTagBtn-${postId}`}  onClick={(e) => handleAddTagClick(e, postId)} />
-          {isTag &&  tagsNameArr.map((tagName) => (
+          <AddTagButton dataTestId={`postAddTagBtn-${postId}`}  onClick={(e) => handleAddTagClick(e, postId)} />
+          {isTag &&
+            tagsNameArr.map((tagName) => (
               <Tag
                 tagName={tagName}
                 postId={postId}
-                handleTagClick={handleTagClick}
-                selectedTagId={selectedTagId}
+                handleTagClick={()=>{
+                  setTags((prevItems) => [...prevItems, clickedObject]);}}
+                //selectedTagId={selectedTagId}
               />
             ))}
           <IconButton
@@ -85,7 +87,7 @@ function Post({
               dataTestId={`postClappingIcon-${postId}`}
               onChange={(event, newValue) => {
                 const didUserClappedOnPost = newValue === "clap";
-                gainClap(postId, didUserClappedOnPost);
+                //gainClap(postId, didUserClappedOnPost);
               }}
             />
           </IconButton>
