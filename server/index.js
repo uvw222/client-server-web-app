@@ -57,7 +57,7 @@ app.post('/posts', cors(corsOptions), (req, res) => {
       return;
   }
 
-  const {title, content, id} = post;
+  const {id, title, content, selectedTag } = post;
   if (!(title)) {
       res.status(400).json({message: 'No title'}).end();
       return;
@@ -71,9 +71,13 @@ app.post('/posts', cors(corsOptions), (req, res) => {
     return;
   }
   
+  const tags = [];
+  if (selectedTag) {
+    tags.push(selectedTag);
+  }
 
   const newPost = {
-       title, content: content, id: uuidv4()
+    id, title, content, userId:userId, tags
   }
   Posts.push(newPost);
   res.send({post: newPost}).status(200).end()
