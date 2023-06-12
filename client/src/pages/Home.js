@@ -13,11 +13,16 @@ function Home({
   selectedTagId,
   selectedPopularityQuery,
   userId,
-  // handleAddTagClick,
+  handleAddPostTag,
+  handleFilteredPosts,
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [anchorEl, setAnchorEl] = useState(null);
+  // const [postId, setPostId] = useState('');
+  const [selectedOption, setSelectedOption] = useState('');
+  const [selectedOptionObject, setSelectedOptionObject] = useState(null);
+  const [selectedOptionName, setSelectedOptionName] = useState('');
 
   ///////////////////////////////////// handle query param /////////////////////////////////////
   searchParams.get('popularity');
@@ -28,7 +33,7 @@ function Home({
     }
   }, [selectedPopularityQuery, setSearchParams]);
 
-  ///////////////////////////////////// handle tag click /////////////////////////////////////
+  /////////////////////////////////// handle tag click /////////////////////////////////////
   const handleAddTagClick = (event, selectedPostId) => {
     setAnchorEl(event.currentTarget);
   };
@@ -37,7 +42,9 @@ function Home({
     setAnchorEl(null);
   };
 
-  const handleTagClick = (tagName, tagId) => {};
+  const handleTagClick = (tagName, dataTestId) => {//filteres the posts by tags
+    handleFilteredPosts(tagName)
+  };
 
   ///////////////////////////////////// render components /////////////////////////////////////
   return (
@@ -52,7 +59,8 @@ function Home({
             handleAddTagClick={handleAddTagClick}
             userId={userId}
             handleTagClick={handleTagClick}
-            selectedTagId={selectedTagId}
+            selectedTagId={selectedOption}
+            handleAddPostTag={handleAddPostTag}
           />
         ))}
       </List>

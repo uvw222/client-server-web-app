@@ -1,6 +1,6 @@
 import { MenuItem, Menu } from '@mui/material';
 
-function FloatingMenu({ menuOptions, anchorElement, handleMenuClose, setSelectedTag }) {
+function FloatingMenu({ menuOptions, optionObjects, anchorElement, handleMenuClose }) {
   const open = Boolean(anchorElement);
 
   const handleClose = (selectedOption, optionId) => {
@@ -27,12 +27,14 @@ function FloatingMenu({ menuOptions, anchorElement, handleMenuClose, setSelected
     >
       {menuOptions.map((option) => {
         const optionId = `positioned-menu-${option}`;
+        // const optionObject = optionObjects.find((obj) => obj.name === option);
+
         return (
           <MenuItem
             selected={false}
             key={option}
             value={option}
-            onClick={(event) => {handleClose(option, optionId)}}//, setSelectedTag(event.target.value)
+            onClick={() => handleClose(option, optionId)}
             data-testid={optionId}
           >
             {option}

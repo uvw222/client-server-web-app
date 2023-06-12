@@ -21,6 +21,7 @@ const corsOptions = {
   credentials: true,
 };
 
+///////////////// GETTERS //////////////////////
 app.get('/', cors(corsOptions), (req, res) => {
   res.send('Welcome to your Wix Enter exam!');
 });
@@ -30,21 +31,33 @@ app.get('/user', cors(corsOptions), (req, res) => {
   res.cookie('userId', userId).send({ id: userId });
 });
 
-///////////////////////////////////// Posts /////////////////////////////////////
+app.get('/tags', cors(corsOptions), (req, res) => {
+  res.send({ Tags });
+});
+
+/////////////// GET FILTTERED POSTS ////////////////
 app.get('/posts', cors(corsOptions), (req, res) => {
-  if (req.query.popularity) {
-    // TODO - implement popularity filter functionality here
-    const popularity = Number(req.query.popularity);
-    res.send({ Posts });
+  const { popularity, tag } = req.query;
+  
+  if (popularity) {
+    const filteredPosts = Posts.filter((post) => post.claps.length>=Number(popularity));
+    res.send({ Posts: filteredPosts });
     return;
-    // End of TODO
   }
+
+  if (tag) {
+    const filteredPosts = Posts.filter((post) => post.tags.includes(tag));
+    res.send({ Posts: filteredPosts });
+    return;
+  }
+
+  // Return all posts if no filters applied
   res.send({ Posts });
 });
 
-app.post('/posts', cors(corsOptions), (req, res) => {
-  // TODO - add the add-new-post functionality here
 
+/////////// ADD A NEW POST //////////////
+app.post('/posts', cors(corsOptions), (req, res) => {
   const userId = req.cookies?.userId;
   if (!userId) {
       res.status(403).end();
@@ -57,7 +70,7 @@ app.post('/posts', cors(corsOptions), (req, res) => {
       return;
   }
 
-  const {title, content, id} = post;
+  const {id, title, content, selectedTag } = post;
   if (!(title)) {
       res.status(400).json({message: 'No title'}).end();
       return;
@@ -71,36 +84,19 @@ app.post('/posts', cors(corsOptions), (req, res) => {
     return;
   }
   
+  const tags = [];
+  if (selectedTag) {
+    tags.push(selectedTag);
+  }
 
   const newPost = {
-       title, content: content, id: uuidv4()
+    id, title, content, userId:userId, tags, claps: [] // Initialize the claps set for the new post
   }
   Posts.push(newPost);
   res.send({post: newPost}).status(200).end()
 });
 
-///////////////////////////////////// Tags /////////////////////////////////////
-app.get('/tags', cors(corsOptions), (req, res) => {
-  res.send({ Tags });
-});
-
-////////////////// put a tag on a post ///////////////////
-app.put('/posts/:postId/tags/:tagName', (req, res) => {
-  const { postId, tagName } = req.params;
-  
-  // Here, you would typically update your data store (e.g., database) with the new tag
-  // For simplicity, let's assume you have a postsData array as an example data store
-  const post = postsData.find((post) => post.id === postId);
-  if (post) {
-    post.tags.push(tagName);
-    res.status(200).json({ message: 'Tag added successfully' });
-  } else {
-    res.status(404).json({ message: 'Post not found' });
-  }
-});
-////////////////// put a tag on a post ///////////////////
-
-
+/////////// ADD A NEW TAG //////////////
 app.post('/tags/tagName/:tagName', cors(corsOptions), (req, res) => {
   const userId = req.cookies?.userId;
   if (!userId) {
@@ -112,7 +108,7 @@ app.post('/tags/tagName/:tagName', cors(corsOptions), (req, res) => {
     res.status(400).end();
     return;
   }
-  Tags[tagName] = {};
+  Tags[tagName] = {postId: ""};
   res.send({ Tags }).status(200).end();
 });
 
@@ -120,5 +116,38 @@ app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 
 });
+
+
+////////////////// PUT A TAG ON A POST //////////////////
+
+app.put('/posts/:postId/tags/:tagName', cors(corsOptions), (req, res) => {
+  const { postId, tagName } = req.params;
+
+  // Find the post with the specified postId
+  const post = Posts.find((post) => post.id === postId);
+
+  if (!post) {
+    res.status(404).json({ message: 'Post not found' }).end();
+    return;
+  }
+
+  // Check if the tagName already exists in the post's tags
+  if (post.tags.includes(tagName)) {
+    res.status(400).json({ message: 'Tag already exists' }).end();
+    return;
+  }
+
+  // Add the tagName to the post's tags
+  post.tags.push(tagName);
+
+  // Update the Tags object with the postId and tagName
+  Tags[tagName] = { postId };
+
+  res.status(200).json({ message: 'Tag added successfully' }).end();
+});
+
+
+
+
 
 

@@ -2,9 +2,11 @@
 
 const Tags = {
     "Server": {
-        "11":true
+        postId:"11"
     },
-    "Frontend": {}
+    "Frontend": {
+        postId:"13"
+    }
 };
 
 module.exports = { Tags };

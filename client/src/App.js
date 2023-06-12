@@ -85,15 +85,34 @@ function App() {
       });
   }, []);
 
-  const getFilteredPosts = (popularity, tag) => {
-    const url = popularity !== '' ? `popularity=${popularity}` : '';
+  const getFilteredPosts = ( tag, popularity) => {
+  const popularityParam = popularity !== '' ? `popularity=${popularity}` : '';
+  const tagParam = tag ? `tag=${tag}` : '';
+  const queryParams = [popularityParam, tagParam].filter(Boolean).join('&');
+  const url = `${baseURL}/posts${queryParams ? `?${queryParams}` : ''}`;
+  setSelectedTagQuery(tag);
+  
+  axios
+    .get(url)
+    .then((response) => {
+      setFilteredPosts([...response.data['Posts']]);
+    })
+    .catch((error) => {
+      handleAlert(error.message, true, 'error');
+    });
+};
+
+
+  const filterPostsByTag = (tagName) => {
     axios
-      .get(`${baseURL}/posts?${url}`)
+      .get(`${baseURL}/posts/filterByTag/${tagName}`)
       .then((response) => {
-        setFilteredPosts([...response.data['Posts']]);
+        const filteredPosts = response.data.Posts;
+        setFilteredPosts(filteredPosts);
       })
       .catch((error) => {
         handleAlert(error.message, true, 'error');
+        
       });
   };
 
@@ -133,6 +152,7 @@ function App() {
             content,
             selectedTag,
             userId,
+            claps: new Set() // Initialize the claps set for the new post
             
           },
         },
@@ -158,38 +178,66 @@ function App() {
     axios
       .post(`${baseURL}/tags/tagName/${tagName}`)
       .then((response) => {
-        setTags({ ...response.data['Tags'] });
-        const tagsList = [];
-        for (const tagName in response.data['Tags']) {
-          tagsList.push(tagName);
+        if (response.data && response.data.Tags) {
+          setTags({ ...response.data.Tags });
+          const tagsList = Object.keys(response.data.Tags);
+          setTagsList(tagsList);
+          handleAlert('Tag was added successfully', true, 'success');
+        } else {
+          handleAlert('Error adding new tag', true, 'error');
         }
-        setTagsList(tagsList);
-        handleAlert('Tag was added successfully', true, 'success');
       })
       .catch((error) => {
         handleAlert(error.message, true, 'error');
       });
   };
+
+
+
+
+
 //////////////// add a tag to a post ////////////////////
+  // const addPostTag = (postId, tagName) => {
+  //   axios
+  //   .put(`${baseURL}/posts/${postId}/tags/${tagName}`)
+  //   .then((response) => {
+  //     const updatedPosts = allPosts.map((post) => {
+  //       if (post.id === postId) {
+  //         return {
+  //           ...post,
+  //           tags: [...post.tags, tagName],
+  //         };
+  //       }
+  //       return post;
+  //     });
+  //     setAllPosts(updatedPosts);
+  //     handleAlert('Tag was added successfully', true, 'success');
+  //   })
+  //   .catch((error) => {
+  //     handleAlert(error.message, true, 'error');
+  //   });
+  // };
+
+
   const addPostTag = (postId, tagName) => {
     axios
-    .put(`${baseURL}/posts/${postId}/tags/${tagName}`)
-    .then((response) => {
-      const updatedPosts = allPosts.map((post) => {
-        if (post.id === postId) {
-          return {
-            ...post,
-            tags: [...post.tags, tagName],
-          };
-        }
-        return post;
+      .put(`${baseURL}/posts/${postId}/tags/${tagName}`)
+      .then((response) => {
+        const updatedPosts = allPosts.map((post) => {
+          if (post.id === postId) {
+            return {
+              ...post,
+              tags: [...post.tags, tagName],
+            };
+          }
+          return post;
+        });
+        setAllPosts(updatedPosts);
+        handleAlert('Tag was added successfully', true, 'success');
+      })
+      .catch((error) => {
+        handleAlert(error.message, true, 'error');
       });
-      setAllPosts(updatedPosts);
-      handleAlert('Tag was added successfully', true, 'success');
-    })
-    .catch((error) => {
-      handleAlert(error.message, true, 'error');
-    });
   };
 
 
@@ -247,8 +295,20 @@ function App() {
 
   ///////////////////////////////////// filters /////////////////////////////////////
   const filterPostsByPopularity = (minClapsNum) => {
-    setSelectedPopularityQuery(`${minClapsNum}`);
-    getFilteredPosts(minClapsNum, selectedTagQuery);
+    setSelectedPopularityQuery(minClapsNum);
+    getFilteredPosts(selectedTagQuery,minClapsNum );
+    
+  };
+
+
+  const filterPostsByTags = (tagName) => {
+    setSelectedTagId(tagName); // Update the selected tag
+  
+    const filteredPosts = allPosts.filter((post) => {
+      return post.tags.includes(tagName);
+    });
+  
+    setFilteredPosts(filteredPosts); // Update the filtered posts
   };
 
   ///////////////////////////////////// render components /////////////////////////////////////
@@ -310,12 +370,16 @@ function App() {
       <Router>
         <Routes>
           <Route path='/add-new-post'  element={<AddNewPost handleAddPost={addPost} TagsList={tagsList} />} />
-          <Route  path='/'  element={ <Home  Posts={filteredPosts} Tags={tags} tagsList={tagsList}
+          <Route  path='/'  element={ <Home  
+                Posts={filteredPosts} 
+                Tags={tags} 
+                tagsList={tagsList}
                 handleAddNewTag={addNewTag}
                 selectedTagId={selectedTagId}
                 selectedPopularityQuery={selectedPopularityQuery}
                 userId={userId}
                 handleAddPostTag={addPostTag}
+                handleFilteredPosts={getFilteredPosts}
               />
             }
           />
