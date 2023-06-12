@@ -22,10 +22,7 @@ function AddNewPost({ handleAddPost,  TagsList}) {
   const tagsList = TagsList;//changed from mock data to real-time tags list
 
   const navigate = useNavigate();
-  // const routeChange = () =>{ 
-  //   let homePagePath = `http://localhost:3000/`; 
-  //   navigate(homePagePath);
-  // }
+  
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [titleError, setTitleError] = useState(false);
