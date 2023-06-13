@@ -15,11 +15,13 @@ function Home({
   userId,
   handleAddPostTag,
   handleFilteredPosts,
+  users,
+  gainClap,
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [anchorEl, setAnchorEl] = useState(null);
-  // const [postId, setPostId] = useState('');
+  const [postId, setPostId] = useState('');
   const [selectedOption, setSelectedOption] = useState('');
   const [selectedOptionObject, setSelectedOptionObject] = useState(null);
   const [selectedOptionName, setSelectedOptionName] = useState('');
@@ -36,6 +38,7 @@ function Home({
   /////////////////////////////////// handle tag click /////////////////////////////////////
   const handleAddTagClick = (event, selectedPostId) => {
     setAnchorEl(event.currentTarget);
+    setPostId(selectedPostId);
   };
 
   const handleMenuClose = (selectedOption) => {
@@ -55,12 +58,16 @@ function Home({
             postId={post.id}
             postTitle={post.title}
             postContent={post.content}
+            postClaps={post.claps}
+            postTags={post.tags}
             Tags={Tags}
             handleAddTagClick={handleAddTagClick}
             userId={userId}
             handleTagClick={handleTagClick}
             selectedTagId={selectedOption}
             handleAddPostTag={handleAddPostTag}
+            users={users}
+            gainClap={gainClap}
           />
         ))}
       </List>
@@ -74,6 +81,8 @@ function Home({
         menuOptions={tagsList}
         anchorElement={anchorEl}
         handleMenuClose={handleMenuClose}
+        handleAddPostTag={handleAddPostTag}
+        postId={postId}
       />
     </div>
   );

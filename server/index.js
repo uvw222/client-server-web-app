@@ -7,19 +7,24 @@ const cors = require('cors');
 const { baseUrl, maxNumOfClapsPerUserPerPost } = require('../constants');
 const { Posts } = require('./model/Posts');
 const { Tags } = require('./model/Tags');
+const { Users } = require('./model/Users');
 
 const app = express();
 const port = 3080;
 
+const corsOptions = {
+  origin: `${baseUrl.client}`,
+  methods: ['GET', 'PUT', 'POST'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+};
+
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(cors());
+// app.use(cors());
+app.use(cors(corsOptions));
 
-const corsOptions = {
-  origin: `${baseUrl.client}`,
-  credentials: true,
-};
 
 ///////////////// GETTERS //////////////////////
 app.get('/', cors(corsOptions), (req, res) => {
@@ -27,31 +32,56 @@ app.get('/', cors(corsOptions), (req, res) => {
 });
 
 app.get('/user', cors(corsOptions), (req, res) => {
-  const userId = req.cookies?.userId || uuidv4();
-  res.cookie('userId', userId).send({ id: userId });
+
+  let userId = req.cookies?.userId;
+  
+  // If the userId cookie is not set, create a new user
+  if (!userId) {
+    userId = uuidv4();
+    res.cookie('userId', userId, { httpOnly: true }).send({ id: userId, clappedPosts:[] });
+
+    // Add the new user to the database
+    Users.push(userId);
+  } 
+  else {
+    res.send({ id: userId , clappedPosts:[]});
+  }
+});
+
+app.get('/users', cors(corsOptions), (req, res) => {
+  res.send({ Users });
 });
 
 app.get('/tags', cors(corsOptions), (req, res) => {
   res.send({ Tags });
 });
 
-/////////////// GET FILTTERED POSTS ////////////////
+/////////////// GET FILTTERED POSTS ///////////////
 app.get('/posts', cors(corsOptions), (req, res) => {
   const { popularity, tag } = req.query;
   
-  if (popularity) {
-    const filteredPosts = Posts.filter((post) => post.claps.length>=Number(popularity));
+  if (tag && popularity === 'undefined') {
+    const filteredPosts = Posts.filter((post) => post.tags.includes(tag));
     res.send({ Posts: filteredPosts });
     return;
   }
+  
+  
 
-  if (tag) {
-    const filteredPosts = Posts.filter((post) => post.tags.includes(tag));
+  else if (popularity) {
+    const filteredPosts = Posts.filter((post) => post.claps.length >= Number(popularity));
+    res.send({ Posts: filteredPosts });
+    return;
+  }
+  
+  else if (popularity !== '' && tag) {
+    const filteredPosts = Posts.filter((post) => (post.tags.includes(tag)) && (post.claps.length >= Number(popularity)));
     res.send({ Posts: filteredPosts });
     return;
   }
 
   // Return all posts if no filters applied
+  else
   res.send({ Posts });
 });
 
@@ -144,9 +174,45 @@ app.put('/posts/:postId/tags/:tagName', cors(corsOptions), (req, res) => {
   Tags[tagName] = { postId };
 
   res.status(200).json({ message: 'Tag added successfully' }).end();
+  
 });
 
+//////////// GAIN CLAP ////////////////
+app.put('/post/clap', cors(corsOptions), (req, res) => {
+  const { postId, userId } = req.body;
 
+  // Find the post with the specified postId
+  const post = Posts.find((post) => post.id === postId);
+
+  if (!post) {
+    res.status(404).json({ message: 'Post not found' }).end();
+    return;
+  }
+
+  // Check if the user has already clapped for this post
+  if (post.claps.includes(userId)) {
+    res.status(400).json({ message: 'User has already clapped for this post' }).end();
+    return;
+  }
+
+  // Add the userId to the post's claps
+  post.claps.push(userId);
+
+  // Find the user with the specified userId
+  const user = Users[userId];
+
+  if (!user) {
+    res.status(404).json({ message: 'User not found' }).end();
+    return;
+  }
+
+  // Add the postId to the user's clappedPosts
+  if (!user.clappedPosts.includes(postId)) {
+    user.clappedPosts.push(postId);
+  }
+
+  res.status(200).json({ message: 'Clap added successfully' }).end();
+});
 
 
 

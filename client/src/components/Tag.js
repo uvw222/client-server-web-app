@@ -6,8 +6,17 @@ function Tag({ tagName, postId, handleTagClick, selectedTagId }) {
   const [color, setColor] = useState('default');
   
   const handleClick = () => {
-    handleTagClick(tagName, postId);
-    setColor('primary'); // Change the color to 'secondary' when clicked
+    if(color==='default')
+    {
+      handleTagClick(tagName, postId);
+      setColor('primary'); // Change the color to 'primary' when clicked
+    }
+    else
+    {
+      handleTagClick('', postId);
+      setColor('default'); // Change the color to 'default' when clicked
+    }
+    
   };
   
   return (

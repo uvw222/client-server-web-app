@@ -1,12 +1,12 @@
 import { MenuItem, Menu } from '@mui/material';
 
-function FloatingMenu({ menuOptions,anchorElement, handleMenuClose, handleAddPostTag , postId}) {
+function FloatingMenuPopularity({ menuOptions,anchorElement, handleMenuClose}) {
   const open = Boolean(anchorElement);
 
   const handleClick = (selectedOption, optionId) => {
     const option = menuOptions.includes(selectedOption) ? selectedOption : '';
     handleMenuClose(option);
-    handleAddPostTag(postId, selectedOption);
+    
   };
 
   return (
@@ -46,4 +46,4 @@ function FloatingMenu({ menuOptions,anchorElement, handleMenuClose, handleAddPos
   );
 }
 
-export default FloatingMenu;
+export default FloatingMenuPopularity;

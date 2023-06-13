@@ -17,6 +17,7 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import HomeIcon from '@mui/icons-material/Home';
 import FloatingMenu from './components/FloatingMenu';
+import FloatingMenuPopularity from './components/FloatingMenuPopularity';
 import Post from './components/Post';
 
 function App() {
@@ -24,10 +25,11 @@ function App() {
   const popularityOptions = [1, 5, 20, 100];
 
   const [userId, setUserId] = useState('');
-  const [userClapNum, setUserClapNum] = useState(0);
+  const [users, setUsers] = useState('');
 
   const [selectedPopularityQuery, setSelectedPopularityQuery] = useState('');
   const [selectedTagQuery, setSelectedTagQuery] = useState('');
+
 
   const [allPosts, setAllPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
@@ -66,7 +68,17 @@ function App() {
       .get(`${baseURL}/user`)
       .then((response) => {
         setUserId(response.data.id);
-        setUserClapNum();//adding a users counter to count the claps each time the user clicks clap
+      })
+      .catch((error) => {
+        handleAlert(error.message, true, 'error');
+      });
+  }, []);
+
+  const getUsers = useCallback(() => {
+    axios
+      .get(`${baseURL}/users`)
+      .then((response) => {
+        setUsers([...response.data['Users']]);
       })
       .catch((error) => {
         handleAlert(error.message, true, 'error');
@@ -91,7 +103,8 @@ function App() {
   const queryParams = [popularityParam, tagParam].filter(Boolean).join('&');
   const url = `${baseURL}/posts${queryParams ? `?${queryParams}` : ''}`;
   setSelectedTagQuery(tag);
-  
+  setSelectedPopularityQuery(popularityParam);
+
   axios
     .get(url)
     .then((response) => {
@@ -102,19 +115,6 @@ function App() {
     });
 };
 
-
-  const filterPostsByTag = (tagName) => {
-    axios
-      .get(`${baseURL}/posts/filterByTag/${tagName}`)
-      .then((response) => {
-        const filteredPosts = response.data.Posts;
-        setFilteredPosts(filteredPosts);
-      })
-      .catch((error) => {
-        handleAlert(error.message, true, 'error');
-        
-      });
-  };
 
   const getTags = useCallback(() => {
     axios
@@ -136,7 +136,8 @@ function App() {
     getPosts();
     getTags();
     getUser();
-  }, [getPosts, getTags, getUser]);
+    getUsers();
+  }, [getPosts, getTags, getUser, getUsers]);
 
 
   ///////////////////// post request /////////////////////
@@ -183,6 +184,9 @@ function App() {
           const tagsList = Object.keys(response.data.Tags);
           setTagsList(tagsList);
           handleAlert('Tag was added successfully', true, 'success');
+          setTimeout(() => {
+            window.location.reload();
+          }, 100);
         } else {
           handleAlert('Error adding new tag', true, 'error');
         }
@@ -219,9 +223,10 @@ function App() {
   // };
 
 
-  const addPostTag = (postId, tagName) => {
+  const addPostTag = (postId, tagName ) => {
+
     axios
-      .put(`${baseURL}/posts/${postId}/tags/${tagName}`)
+    .put(`${baseURL}/posts/${postId}/tags/${tagName}`, { withCredentials: true })
       .then((response) => {
         const updatedPosts = allPosts.map((post) => {
           if (post.id === postId) {
@@ -234,6 +239,9 @@ function App() {
         });
         setAllPosts(updatedPosts);
         handleAlert('Tag was added successfully', true, 'success');
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
       })
       .catch((error) => {
         handleAlert(error.message, true, 'error');
@@ -243,37 +251,43 @@ function App() {
 
 
 //////////// gain Clap ///////////
-// const gainClap = (postId, isClap)=>{
+const gainClap = (postId, userId)=>{
  
-//   axios
-//   .post(`${baseURL}/post/clap`,
-//   {
-//     post: { id:postId, clap: done },
-//   },
-//   {
-//     headers: {
-//       "content-type": "application/x-www-form-urlencoded",
-//     },
-//   }
-// )
-// .then((response) =>  {
-//   if (response.status === 200) {//checking response status
-//     const updatedTodo = response.data.done;
-//     setTodos((prevTodos) =>
-//       prevTodos.map((todo) =>
-//         todo.id === id ? { ...todo, done: updatedTodo } : todo
-//       )
-//     );
-//     getTodos();
-//   } else {
-//     // Handle other status codes if needed
-//     console.log("Unexpected status code:", response.status);
-//   }
-// })
-// .catch((error) => {
-//   console.log(error);
-// });
-// };
+  axios
+  .put(`${baseURL}/post/clap`, { postId, userId }, { withCredentials: true })
+  .then((response) => {
+    const updatedPosts = allPosts.map((post) => {
+      if (post.id === postId) {
+        return {
+          ...post,
+          claps: [...post.claps, userId],
+        };
+      }
+      return post;
+    });
+    setAllPosts(updatedPosts);
+    const updatedUsers = users.map((user) => {
+      if (user.id === userId) {
+        if (!user.clappedPosts.includes(postId)) {
+          return {
+            ...user,
+            clappedPosts: [...user.clappedPosts, postId],
+          };
+        }
+      }
+      return user;
+    });
+    setUsers(updatedUsers);
+    handleAlert('Clap was added successfully', true, 'success');
+    setTimeout(() => {
+      window.location.reload();
+    }, 100);
+  })
+  .catch((error) => {
+    handleAlert(error.message, true, 'error');
+  });
+
+};
 
 
 
@@ -285,6 +299,7 @@ function App() {
   const handleMenuClose = (selectedOption) => {
     setAnchorEl(null);
     filterPostsByPopularity(selectedOption);
+    setSelectedPopularityQuery(selectedOption);
   };
 
   const handleHomeClick = () => {
@@ -348,10 +363,10 @@ function App() {
                   : 'visibilityHidden'
               }
             >
-              filter by Popularity
+              {selectedPopularityQuery ==''?'filter by Popularity':selectedPopularityQuery}
             </Button>
           </ButtonGroup>
-          <FloatingMenu
+          <FloatingMenuPopularity
             menuOptions={popularityOptions}
             anchorElement={anchorEl}
             handleMenuClose={handleMenuClose}
@@ -380,6 +395,8 @@ function App() {
                 userId={userId}
                 handleAddPostTag={addPostTag}
                 handleFilteredPosts={getFilteredPosts}
+                users={users}
+                gainClap={gainClap}
               />
             }
           />

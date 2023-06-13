@@ -17,6 +17,8 @@ function Post({
   postId,
   postTitle,
   postContent,
+  postClaps,
+  postTags,
   Tags,
   handleAddTagClick,
   userId,
@@ -25,26 +27,24 @@ function Post({
   handleAddPostTag,
   setUser,
   postClapsNum,
+  users,
+  gainClap,
 
 }) {
   const baseURL = 'http://localhost:3080';
-  const getTagsByPostId = (postId) => {
-    const tagsArr = [];
-    for (const tagName in Tags) {
-      if (Tags[tagName][postId]) {
-        tagsArr.push(tagName);
-      }
-    }
-    return tagsArr;
-  };
 
-  const tagsNameArr = getTagsByPostId(postId);
-  const isTag = tagsNameArr.length > 0 ? true : false;
+  const isTag = postTags.length > 0 ? true : false;
   const [didUserClappedOnPost, setDidUserClappedOnPost] = useState(false);
   const [clapCounter, setClapCounter] = useState(postClapsNum);
 
-  const updateClapCounter = (postId) => {
-    setClapCounter(prevCounter => prevCounter + 1);
+  const updateClapCounter = (postId, isGain) => {
+    if(isGain){
+      setClapCounter(prevCounter => prevCounter + 1);
+    }
+    else{
+      setClapCounter(prevCounter => prevCounter - 1);
+    }
+    
   };
   const handleAddingTag_Post = (postId, tagName)=>{
     handleAddPostTag(postId, tagName)
@@ -97,38 +97,50 @@ const updateClappedPostsArray = (postId) => {
         <CardActions>
           <AddTagButton dataTestId={`postAddTagBtn-${postId}`}  onClick={(e) => handleAddTagClick(e, postId)} />
           {isTag &&
-            tagsNameArr.map((tagName) => {
-              console.log(tagName); // Write tagName to the console
-              return (
-                <Tag
-                  tagName={tagName}
-                  postId={postId}
-                  handleTagClick={handleAddingTag_Post}
-                  selectedTagId={selectedTagId}
-                />
-              );
-            })}
+          postTags.map((tagName) => (
+            <Tag
+                tagName={tagName}
+                postId={postId}
+                handleTagClick={handleTagClick}
+                selectedTagId={selectedTagId}
+              />
+            ))}
           <IconButton
             aria-label='clapping'
             size='small'
             data-testid={`postClapsBtn-${postId}`}
+            onClick={() => {
+              if (!didUserClappedOnPost) {
+                gainClap(postId, userId);
+                setDidUserClappedOnPost(true);
+                updateClapCounter(!didUserClappedOnPost);
+              }
+              else{
+                //i want to add decreasing a clap
+                setDidUserClappedOnPost(false);
+                updateClapCounter();
+              }
+            }}
           >
             <ClappingIcon
               didUserClappedOnPost={didUserClappedOnPost}
               dataTestId={`postClappingIcon-${postId}`}
-              onChange={() => {
-                setDidUserClappedOnPost(prevState => !prevState);
-                setUser(prevUser => ({
-                  ...prevUser,
-                  clappedPosts: [...prevUser.clappedPosts, postId]
-                }));
-                updateClappedPostsArray(postId);
-                updateClapCounter(postId);
-              }}
+              // onChange={() => {
+
+              //   // gainClap(postId, userId)
+                
+              //   // setDidUserClappedOnPost(!didUserClappedOnPost);
+              //   // setUser(prevUser => ({
+              //   //   ...prevUser,
+              //   //   clappedPosts: [...prevUser.clappedPosts, postId]
+              //   // }));
+              //   // updateClappedPostsArray(postId);
+              //   // updateClapCounter(postId);
+              // }}
             />
           </IconButton>
           <Typography variant='string' data-testid={`postClapsNum-${postId}`}>
-           {postClapsNum}
+           {postClaps.length}
           </Typography>
         </CardActions>
       </Card>

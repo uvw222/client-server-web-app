@@ -26,27 +26,28 @@ When you're ready to submit your exam:
 ## Requirements:
 
 ### Tags:
-
+[V]
 1. Implement the add tag functionality to a post. You'll notice that currently the “+” sign to add a tag to a post will open a Select component with hardcoded options, but clicking on them will do nothing. 
-> you can look at the tags list implementation (for both the **client** and **server** side) for an example. 
+> you can look at the tags list implementation (for both the **client** and **server** side) for an example. [V]
 
 ### Claps - Part 1:
 1. Implement claps behavior - up to 5 claps per user are allowed
 > note that the `userId` of any api call is already available for you as a cookie on the **server** side.
 
 ### Filter:
-
-1. By popularity - clicking on popularity from the menu should change the url and show only posts with higher popularity (claps). Currently clicking on a dropdown item will redirect but no filtering will occur
-2. By tag - Clicking on a tag from the tags list, or from a post's tags should change the url and show only posts with the selected tag. Currently clicking on them does nothing
+[V]
+1. By popularity - clicking on popularity from the menu should change the url and show only posts with higher popularity (claps). [V]Currently clicking on a dropdown item will redirect but no filtering will occur
+2. By tag - Clicking on a tag from the tags list, or from a post's tags should change the url and show only posts with the selected tag.[V]
+Currently clicking on them does nothing
 3. Support filtering by both tag and popularity by url, for example `tag=frontend&popularity=20`. If a user clicks on a tag from the tags list, and then on popularity, both should be in the url
-4. Mark the selected tag and/or popularity option using the components' apis, selected tag color should be `primary`.
+4. Mark the selected tag and/or popularity option using the components' apis, selected tag color should be `primary`. [V]
 
 ### Add post:
-
-1. Clicking on the submit button should not submit anything if required fields are empty. Instead an empty required field should indicate an error
-2. Use actual tags instead of hardcoded ones
-3. Should submit when all required fields are filled, and then redirect to the home page
-4. Bonus - limit the title to 100 characters and show an error message for longer values
+[V]
+1. Clicking on the submit button should not submit anything if required fields are empty. Instead an empty required field should indicate an error[V]
+2. Use actual tags instead of hardcoded ones[V]
+3. Should submit when all required fields are filled, and then redirect to the home page[V]
+4. Bonus - limit the title to 100 characters and show an error message for longer values[V]
 
 ### Claps - Part 2:
 
